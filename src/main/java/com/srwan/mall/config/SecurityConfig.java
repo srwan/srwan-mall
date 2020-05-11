@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * SpringSecurity的配置
- * Created by macro on 2018/4/26.
+ * @author bzq
  */
 @Configuration
 @EnableWebSecurity
@@ -51,12 +51,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf()// 由于使用的是JWT，我们这里不需要csrf
-                .disable()
-                .sessionManagement()// 基于token，所以不需要session
+        // 由于使用的是JWT，我们这里不需要csrf
+        httpSecurity.csrf().disable()
+                // 基于token，所以不需要session
+                .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                // 基于token，所以不需要session
                 .antMatchers(HttpMethod.GET, // 允许对于网站静态资源的无授权访问
                         "/",
                         "/*.html",
@@ -68,13 +70,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/v2/api-docs/**"
                 )
                 .permitAll()
-                .antMatchers("/admin/login", "/admin/register")// 对登录注册要允许匿名访问
+                //对登录注册要允许匿名访问
+                .antMatchers("/admin/login", "/admin/register")
                 .permitAll()
-                .antMatchers(HttpMethod.OPTIONS)//跨域请求会先进行一次options请求
+                //跨域请求会先进行一次options请求
+                .antMatchers(HttpMethod.OPTIONS)
                 .permitAll()
-//                .antMatchers("/**")//测试时全部运行访问
-//                .permitAll()
-                .anyRequest()// 除上面外的所有请求全部需要鉴权认证
+                //测试时全部运行访问
+                //.antMatchers("/**")
+                //.permitAll()
+                // 除上面外的所有请求全部需要鉴权认证
+                .anyRequest()
                 .authenticated();
         // 禁用缓存
         httpSecurity.headers().cacheControl();
